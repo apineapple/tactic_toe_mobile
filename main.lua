@@ -1,5 +1,8 @@
 
 lvls={
+	{ -- tutorial
+	{"tutorial",{6,6,-1},{1,1,1}}
+	},
     { -- level pack 2 "base levels"
 	{"intro",{4,4,-1},{2,2,1},{3,3,1}},
 	{"two-step",{4,5,-1},{4,3,1},{3,4,1},{3,5,1}},
@@ -16,7 +19,7 @@ lvls={
 	{"elephant",{1,4,-1},{1,1,1},{3,1,1},{2,2,1},{4,3,1},{5,4,1},{2,4,1}},
 	{"cage",{5,6,-1},{2,1,0},{3,1,0},{4,1,0},{5,1,0},{2,2,0},{5,2,0},{2,3,0},{3,2,1},{4,3,1},{5,3,0},{2,4,0},{3,4,0},{5,4,0}},
 	{"extender",{6,4,-1},{1,5,1},{2,5,1},{3,5,1},{2,6,1},{3,6,1}},
-},
+	},
 }
 
 function love.load()
@@ -32,7 +35,6 @@ function love.load()
 
     love.window.setFullscreen(true, "desktop")
     local width, height = lg.getWidth(), lg.getHeight()
-	love.window.close()
     love.window.setFullscreen(false)
     love.window.setMode(1024, 1024, {resizable=true, minwidth=512, minheight=512})
 
@@ -48,7 +50,7 @@ function love.load()
     keyrepeats = {}
 
     --colors (taken from pico8 palette ). Remember, use setColor(white) for pico8 white, use setcolor(1,1,1) for lg.draw
-    black = {0,0,0}
+	black = {0,0,0}
 	yellow = {1, 0.925, 0.153}
     darkBlue = {0.113, 0.169, 0.325}
     lightBlue = {41/255, 173/255, 1}
@@ -70,7 +72,10 @@ function love.load()
     lpackIcons[#lpackIcons + 1] = newAnimation(lg.newImage("/data/imgs/baselvls-sheet.png"),240,240,4)
     lpackIcons[#lpackIcons + 1] = newAnimation(lg.newImage("/data/imgs/rocketlvls.png"),240,240,1.8)
     lpackIcons[#lpackIcons + 1] = newAnimation(lg.newImage("/data/imgs/knightlvls.png"),240,240,1.2, true)
-    cur=1
+    cur={}
+	for i=1,#lpackIcons do
+		cur[i] = 1
+	end
     lpack, lpOffset, lpTargOffset = 1, 0, 0
 
     --level select init 
@@ -141,6 +146,7 @@ function love.draw()
 	lg.setColor(black)
 	lg.rectangle("fill",-128,0,128,lg.getHeight())
 	lg.rectangle("fill",512,0,256,lg.getHeight())
+
 end
 
 --DRAW AND UPDATE FOR EACH MODE
@@ -218,7 +224,7 @@ function draw_select()
 	--circfill(116,71+12*ls_boxselect-12,5,10)
 
     lg.setColor(yellow)
-	lg.printf(cur..". "..lvls[lpack][cur][1],64,4*(56+12*ls_boxselect),480,"left",0,1,1)
+	lg.printf(cur[lpack]..". "..lvls[lpack][cur[lpack]][1],64,4*(56+12*ls_boxselect),480,"left",0,1,1)
     lg.setFont(picofont)
 	for i=1,l[lpack] do
 	    --spr(21,100,67+12*i+ls_shift)
@@ -230,7 +236,7 @@ function draw_select()
 
     lg.setColor(darkBlue)
     lg.rectangle("fill", 0,0,512,256)
-    drawPreviewLevel(lvls[lpack][cur])
+    drawPreviewLevel(lvls[lpack][cur[lpack]])
 	--rectfill(0,2,16,8,6)
 	--circfill(18,5,3,6)
 end
@@ -251,7 +257,7 @@ function draw_level()
 	--print("clr",2,54,8)
 
     lg.setColor(white)
-	lg.printf(cur..". "..b[1], 64, 16, 768, "center", 0, 0.5, 0.5)
+	lg.printf(cur[lpack]..". "..b[1], 64, 16, 768, "center", 0, 0.5, 0.5)
 	
 	txt=""
 	if (lpack==2) then txt="press c to " end
@@ -316,7 +322,7 @@ function draw_level()
 		end
 	end
 	
-	--	if(lpack==6) exhandler(cur)
+	--	if(lpack==6) exhandler(cur[lpack])
     if not currwon then 
         lg.setColor(1,1,1)
         drawAnimation(cursor, x*64, y*64)
@@ -340,7 +346,7 @@ function draw_level()
         end
         if dopamine>=27/30 then
 			local txts={"next level","level select", "retry"}
-            if(cur>=#lvls[lpack]) then txts[1]="continue" end
+            if(cur[lpack]>=#lvls[lpack]) then txts[1]="continue" end
             for i=1,3 do
                 lg.setColor(white)
                 if i == mselect then lg.setColor(yellow) end
@@ -370,8 +376,8 @@ function level_unlocked(key)
 		if (x==0) then
 			if y==1 then
 				if (lpack==-1) then mode="editor" return end 
-					mode="select"
-					setup_ls()
+				mode="select"
+				setup_ls()
 			elseif y==2 then
 					btype=""
 					if fval=="" then
@@ -454,7 +460,7 @@ function level_locked(key)
 			cf=-20
 			parts_init()
 			mselect=1
-			if lpack ~= -1 and l[lpack]<cur then
+			if lpack ~= -1 and l[lpack]<cur[lpack] then
 				l[lpack] = l[lpack] + 1
                 --TODO: PERMANENT MEMORY STUFF
 				--dset(lpack+1,l[lpack])
@@ -480,14 +486,14 @@ function level_won(key)
 	 if (lpack==-1) then mode="editor" return end 
 	
 		if mselect==1 then
-			if (cur==#lvls[lpack]) then
+			if (cur[lpack]==#lvls[lpack]) then
 				mode="lpack"
 			else
-				if (cur<#lvls[lpack]) then cur = cur + 1 end
+				if (cur[lpack]<#lvls[lpack]) then cur[lpack] = cur[lpack] + 1 end
 				set_b()
 			end
 		elseif mselect==2 then
-			if (cur<#lvls[lpack]) then cur = cur + 1 end
+			if (cur[lpack]<#lvls[lpack]) then cur[lpack] = cur[lpack] + 1 end
 			mode="select"
 			setup_ls()
 		elseif mselect==3 then
@@ -500,7 +506,7 @@ end
 function set_b(lev)
 	un={}
 	if lev==nil then
-        lev=lvls[lpack][cur]
+        lev=lvls[lpack][cur[lpack]]
     end
 	b={}
 	b[1]=lev[1]
@@ -573,21 +579,21 @@ function love.keypressed(key, scancode, isrepeat)
         elseif key == "x" then
             mode="lpack" 
             lpshift=-80*(lpack-1) 
-        elseif key == "up" and cur>1 then
-            cur = cur - 1
+        elseif key == "up" and cur[lpack]>1 then
+            cur[lpack] = cur[lpack] - 1
             ls_boxselect = ls_boxselect - 1
-            if ls_boxselect < 3 and ls_shift <= -24 and cur > 1 then
+            if ls_boxselect < 3 and ls_shift <= -24 and cur[lpack] > 1 then
                 ls_shift = ls_shift + 12
                 ls_boxselect = ls_boxselect + 1
             end
-        elseif key == "down" and cur <= #lvls[lpack]-1 then --and cur <= math.min(l[lpack],#lvls[lpack]-1) then --- this bit to control locked levels
-            cur = cur + 1
+        elseif key == "down" and cur[lpack] <= #lvls[lpack]-1 then --and cur[lpack] <= math.min(l[lpack],#lvls[lpack]-1) then --- this bit to control locked levels
+            cur[lpack] = cur[lpack] + 1
             ls_boxselect = ls_boxselect + 1
-            if ls_boxselect > 3 and #lvls[lpack]-cur > 1 then
+            if ls_boxselect > 3 and #lvls[lpack]-cur[lpack] > 1 then
                 ls_shift = ls_shift - 12
                 ls_boxselect = ls_boxselect - 1
             end
-            if ls_levelstart + 3 > cur and ls_levelstart > 1 then
+            if ls_levelstart + 3 > cur[lpack] and ls_levelstart > 1 then
                 ls_levelstart = ls_levelstart - 1
             end
         end
@@ -600,6 +606,7 @@ function love.keypressed(key, scancode, isrepeat)
             lpack = lpack + 1
         elseif key == "c" then
             mode = "select"
+			setup_ls()
         end
 
         if lpack < 1 then 
@@ -691,7 +698,7 @@ function drawLpackIcon(i,offset)
         lg.printf("rocke", offset-32, 212, 240, "center", 0, 1, 1)
         lg.printf("levels", offset-8, 288, 240, "center", 0, 1, 1)
     elseif i == 4 then
-		lg.setColor(0,0,0)--[[
+		lg.setColor(black)--[[
 		lg.printf("kn  ght", offset+15, 220, 240, "center", 0, 1, 1.25)
 		lg.printf("kn  ght", offset+9, 220, 240, "center", 0, 1, 1.25)
 		lg.printf("kn  ght", offset+12, 223, 240, "center", 0, 1, 1.25)
@@ -874,15 +881,19 @@ function block_eye(bx,by)
 end
 
 function setup_ls()
-	ls_boxselect = math.min(3,cur)
-	if math.abs(#lvls[lpack]-cur) <= 1 then
-		ls_boxselect=5-(#lvls[lpack]-cur)
+	ls_boxselect = math.min(3,cur[lpack])
+	if math.abs(#lvls[lpack]-cur[lpack]) <= 1 then
+		ls_boxselect=5-(#lvls[lpack]-cur[lpack])
 	end
- ls_levelstart = math.max(1,cur-2)
-	if #lvls[lpack]-cur <= 1 then
+	 ls_levelstart = math.max(1,cur[lpack]-2)
+	if #lvls[lpack]-cur[lpack] <= 1 then
 		ls_levelstart = #lvls[lpack]-4
 	end
- ls_shift=-ls_levelstart*12
+	ls_shift=-ls_levelstart*12
+
+	--ls_boxselect = 1
+	--ls_shift = -12
+	--ls_levelstart = 1
 end
 
 function add(table, elt)
@@ -907,5 +918,3 @@ function won()
 	
 	return false
 end
-
-
