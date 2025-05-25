@@ -8,7 +8,7 @@ lvls={
 	{"two-step",{4,5,-1},{4,3,1},{3,4,1},{3,5,1}},
 	{"factory",{4,3,-1},{3,2,1},{4,2,1},{5,1,1},{6,3,1}},
 	{"corner boost",{5,5,-1},{2,2,1},{1,2,1},{2,1,1},{4,4,1}},
-	{"escape pod",{1,5,-1},{3,3,1},{3,4,1},{4,4,1}},
+	{"escape pod",{6,6,-1},{1,1,1},{2,1,1},{3,1,1}},
 	{"corner boost 2",{4,6,-1},{6,4,1},{3,4,1},{4,3,1},{4,4,1}},
 	{"escape pod 2",{6,5,-1},{3,3,1},{3,4,1},{4,3,1},{4,4,1}},
 	{"inchworm",{5,6,-1},{2,4,1},{2,5,1},{2,6,1},{3,6,1}},
@@ -101,6 +101,8 @@ function love.load()
     dopamine = 0
     currwon=false
     cursor = newAnimation(lg.newImage("/data/imgs/cursor.png"),64,64,3.5)
+	mouseloc={0,0}
+	swipe={}
 end
 
 --main draw and update functions
@@ -146,7 +148,8 @@ function love.draw()
 	lg.setColor(black)
 	lg.rectangle("fill",-128,0,128,lg.getHeight())
 	lg.rectangle("fill",512,0,256,lg.getHeight())
-
+    lg.setColor(yellow)
+	mx,my=love.mouse.getPosition()
 end
 
 --DRAW AND UPDATE FOR EACH MODE
@@ -360,6 +363,82 @@ end
 function update_level(dt)
     if lock == 1 then updateAnimation(cursor, dt) end
     if currwon then parts_update(dt) dopamine = dopamine + dt end
+
+	if lock==0 and not currwon then
+		swipe_controls()
+	end
+
+end
+
+function swipe_controls()
+	mouseloc={math.floor((mx-175)/110)+1,math.floor((my-110)/110)+1}
+	if love.mouse.isDown(1) then
+		if #swipe==0 or swipe[#swipe][1]~=mouseloc[1] or swipe[#swipe][2]~=mouseloc[2] then
+			table.insert(swipe,{mouseloc[1],mouseloc[2]})
+		end
+	else
+		local swipeprev = nil
+		local moreswipe = true
+		local moved=nil
+		local swipeid = nil
+		local cbskip = 0
+		while moreswipe do
+			moreswipe = nil
+			moved = #un
+			for i=1,#swipe do
+				if cbskip > 0 then
+					cbskip = cbskip - 1 
+				else
+					swipeid = contains(swipe[i][1],swipe[i][2])
+					if swipeid then
+						if i<#swipe-3 and contains(swipe[i+1][1],swipe[i+1][2]) and contains(swipe[i+2][1],swipe[i+2][2]) and contains(swipe[i+3][1],swipe[i+3][2]) and swipe[i+2][1]==swipe[i][1] and swipe[i+2][2]==swipe[i][2] then
+							cbskip = 2
+							--need to worry about more than one apart error, user exploit
+							--also deal with corner boost with more than one space
+							local cbx = (swipe[i][1]+swipe[i+1][1])/2 - swipe[i+3][1]
+							local cby = (swipe[i][2]+swipe[i+1][2])/2 - swipe[i+3][2]
+							
+							if cbx > 0 then
+								cbx = swipe[i+3][1] + 1
+							elseif cbx < 0 then
+								cbx = swipe[i+3][1] - 1
+							else
+								cbx = swipe[i+3][1]
+							end
+							
+							if cby > 0 then
+								cby = swipe[i+3][2] + 1
+							elseif cby < 0 then
+								cby = swipe[i+3][2] - 1
+							else
+								cby = swipe[i+3][2]
+							end
+
+							swipeprev={cbx,cby}
+
+						elseif swipeprev then
+							x = swipe[i][1]
+							y = swipe[i][2]
+							level_unlocked("c")
+							x = swipe[i][1]+(swipe[i][1]-swipeprev[1])
+							y = swipe[i][2]+(swipe[i][2]-swipeprev[2])
+							level_locked("c")
+							if #un > moved then
+								swipeprev=nil
+								moreswipe = true
+								break
+							end
+						end
+
+						if cbskip == 0 then
+							swipeprev={swipe[i][1],swipe[i][2]}
+						end
+					end
+				end
+			end
+		end
+		swipe={}
+	end
 end
 
 function level_unlocked(key)
@@ -790,7 +869,7 @@ end
 
 function contains(px,py)
 	for i=g+2,#b do
-		if (b[i][1]==px and b[i][2]==py) then return true end
+		if (b[i][1]==px and b[i][2]==py) then return i end
 	end
 	return false
 end
