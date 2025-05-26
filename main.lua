@@ -150,6 +150,10 @@ function love.draw()
 	lg.rectangle("fill",512,0,256,lg.getHeight())
     lg.setColor(yellow)
 	mx,my=love.mouse.getPosition()
+	mx = mx / scale
+	my = my / scale
+	lg.setColor(white)
+	lg.printf(mouseloc[1].." ".. mouseloc[2],0,0,400)
 end
 
 --DRAW AND UPDATE FOR EACH MODE
@@ -371,7 +375,7 @@ function update_level(dt)
 end
 
 function swipe_controls()
-	mouseloc={math.floor((mx-175)/110)+1,math.floor((my-110)/110)+1}
+	mouseloc={math.floor((mx)/64),math.floor((my)/64)}
 	if love.mouse.isDown(1) then
 		if #swipe==0 or swipe[#swipe][1]~=mouseloc[1] or swipe[#swipe][2]~=mouseloc[2] then
 			table.insert(swipe,{mouseloc[1],mouseloc[2]})
