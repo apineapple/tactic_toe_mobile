@@ -150,8 +150,8 @@ function love.draw()
 	lg.rectangle("fill",512,0,256,lg.getHeight())
     lg.setColor(yellow)
 	mx,my=love.mouse.getPosition()
-	mx = mx / scale
-	my = my / scale
+	mx = (mx-xtranslate)/scale
+	my = (my-ytranslate)/scale
 	lg.setColor(white)
 	lg.printf(mouseloc[1].." ".. mouseloc[2],0,0,400)
 end
