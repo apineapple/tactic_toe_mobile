@@ -153,8 +153,8 @@ function love.draw()
 	mx = (mx-xtranslate)/scale
 	my = (my-ytranslate)/scale
 	lg.setColor(white)
-	lg.printf(mouseloc[1].." ".. mouseloc[2],0,0,400)
-	lg.printf(math.floor(mx).." ".. math.floor(my),0,200,400)
+	--lg.printf(mouseloc[1].." ".. mouseloc[2],0,0,400)
+	--lg.printf(math.floor(mx).." ".. math.floor(my),0,200,400)
 
 end
 
@@ -335,10 +335,13 @@ function draw_level()
 	for i=1, #swipe-1 do
 		yelloow[4] = yelloow[4]+.01
 		lg.setColor(yelloow)
-        lg.line(swipe[i][1]*64+28, swipe[i][2]*64+28, swipe[i+1][1]*64+28, swipe[i+1][2]*64+28)
+        lg.line(swipe[i][1]*64+32, swipe[i][2]*64+32, swipe[i+1][1]*64+32, swipe[i+1][2]*64+32)
+		love.graphics.circle("fill", swipe[i][1]*64+32, swipe[i][2]*64+32, 8)
+		love.graphics.circle("fill", swipe[i+1][1]*64+32, swipe[i+1][2]*64+32, 8)
+
 	end
 	--	if(lpack==6) exhandler(cur[lpack])
-    if not currwon then 
+    if not currwon and #swipe==0 then 
         lg.setColor(1,1,1)
         drawAnimation(cursor, x*64, y*64)
     end
@@ -386,8 +389,8 @@ function swipe_controls()
 	mouseloc={math.floor((mx)/64),math.floor((my)/64)}
 	--add so its only heart touches that count
 	if love.mouse.isDown(1) then
-		if (#swipe==0 or swipe[#swipe][1]~=mouseloc[1] or swipe[#swipe][2]~=mouseloc[2]) and mx-mouseloc[1]*64 > 16 and mx-mouseloc[1]*64 < 48 and  my-mouseloc[2]*64 > 16 and my-mouseloc[2]*64 < 48 then
-			table.insert(swipe,{mouseloc[1],mouseloc[2]})
+		if (#swipe==0 or swipe[#swipe][1]~=mouseloc[1] or swipe[#swipe][2]~=mouseloc[2]) and mx-mouseloc[1]*64 > 10 and mx-mouseloc[1]*64 < 54 and  my-mouseloc[2]*64 > 10 and my-mouseloc[2]*64 < 54 then
+			add(swipe,{mouseloc[1],mouseloc[2]})
 		end
 	else
 		local swipeprev = nil
@@ -736,7 +739,7 @@ function newAnimation(image, width, height, duration, pingpong)
 
     for y = 0, image:getHeight() - height, height do
         for x = 0, image:getWidth() - width, width do
-            table.insert(animation.quads, love.graphics.newQuad(x, y, width, height, image:getDimensions()))
+            add(animation.quads, love.graphics.newQuad(x, y, width, height, image:getDimensions()))
         end
     end
 
