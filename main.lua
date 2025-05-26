@@ -154,6 +154,8 @@ function love.draw()
 	my = (my-ytranslate)/scale
 	lg.setColor(white)
 	lg.printf(mouseloc[1].." ".. mouseloc[2],0,0,400)
+	lg.printf(math.floor(mx).." ".. math.floor(my),0,200,400)
+
 end
 
 --DRAW AND UPDATE FOR EACH MODE
@@ -382,8 +384,9 @@ end
 
 function swipe_controls()
 	mouseloc={math.floor((mx)/64),math.floor((my)/64)}
+	--add so its only heart touches that count
 	if love.mouse.isDown(1) then
-		if #swipe==0 or swipe[#swipe][1]~=mouseloc[1] or swipe[#swipe][2]~=mouseloc[2] then
+		if (#swipe==0 or swipe[#swipe][1]~=mouseloc[1] or swipe[#swipe][2]~=mouseloc[2]) and mx-mouseloc[1]*64 > 16 and mx-mouseloc[1]*64 < 48 and  my-mouseloc[2]*64 > 16 and my-mouseloc[2]*64 < 48 then
 			table.insert(swipe,{mouseloc[1],mouseloc[2]})
 		end
 	else
