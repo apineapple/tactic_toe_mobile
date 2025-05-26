@@ -328,10 +328,12 @@ function draw_level()
             end
 		end
 	end
+	yelloow = {1, 0.925, 0.153,1-#swipe*.01}
+	lg.setLineWidth(8)
 	for i=1, #swipe-1 do
-		lg.setColor(yellow)
-		lg.setLineWidth(16)
-        lg.line(swipe[i][1]*64+24, swipe[i][2]*64+24, swipe[i+1][1]*64+24, swipe[i+1][2]*64+24)
+		yelloow[4] = yelloow[4]+.01
+		lg.setColor(yelloow)
+        lg.line(swipe[i][1]*64+28, swipe[i][2]*64+28, swipe[i+1][1]*64+28, swipe[i+1][2]*64+28)
 	end
 	--	if(lpack==6) exhandler(cur[lpack])
     if not currwon then 
