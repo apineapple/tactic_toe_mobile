@@ -328,7 +328,11 @@ function draw_level()
             end
 		end
 	end
-	
+	for i=1, #swipe-1 do
+		lg.setColor(yellow)
+		lg.setLineWidth(16)
+        lg.line(swipe[i][1]*64+24, swipe[i][2]*64+24, swipe[i+1][1]*64+24, swipe[i+1][2]*64+24)
+	end
 	--	if(lpack==6) exhandler(cur[lpack])
     if not currwon then 
         lg.setColor(1,1,1)
