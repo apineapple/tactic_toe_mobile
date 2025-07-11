@@ -1,14 +1,15 @@
 
 lvls={
-	{ -- tutorial
+{ -- level pack 1: "tutorial"
 	{"tutorial",{6,6,-1},{1,1,1}}
-	},
-    { -- level pack 2 "base levels"
-	{"intro",{4,4,-1},{2,2,1},{3,3,1}},
+},
+{ -- level pack 2: "base levels"
+	{"intro",{5,3,-1},{1,3,1},{2,3,1},{3,3,1}},
+	{"intro 2",{5,5,-1},{1,1,1},{2,2,1},{3,3,1}},
 	{"two-step",{4,5,-1},{4,3,1},{3,4,1},{3,5,1}},
 	{"factory",{4,3,-1},{3,2,1},{4,2,1},{5,1,1},{6,3,1}},
-	{"corner boost",{5,5,-1},{2,2,1},{1,2,1},{2,1,1},{4,4,1}},
-	{"escape pod",{6,6,-1},{1,1,1},{2,1,1},{3,1,1}},
+	{"corner boost",{3,3,-1},{4,4,-1},{1,1,1},{2,2,1},{5,6,1},{6,5,1},{5,5,1}},
+	{"escape pod",{1,5,-1},{3,3,1},{3,4,1},{4,4,1}},
 	{"corner boost 2",{4,6,-1},{6,4,1},{3,4,1},{4,3,1},{4,4,1}},
 	{"escape pod 2",{6,5,-1},{3,3,1},{3,4,1},{4,3,1},{4,4,1}},
 	{"inchworm",{5,6,-1},{2,4,1},{2,5,1},{2,6,1},{3,6,1}},
@@ -17,9 +18,31 @@ lvls={
 	{"criss-cross",{2,6,-1},{4,1,-1},{4,2,1},{3,3,1},{3,4,1},{2,5,1}},
 	{"factory 2",{1,3,-1},{1,1,1},{2,1,1},{4,2,1},{5,4,1},{4,5,1},{2,4,1}},
 	{"elephant",{1,4,-1},{1,1,1},{3,1,1},{2,2,1},{4,3,1},{5,4,1},{2,4,1}},
-	{"cage",{5,6,-1},{2,1,0},{3,1,0},{4,1,0},{5,1,0},{2,2,0},{5,2,0},{2,3,0},{3,2,1},{4,3,1},{5,3,0},{2,4,0},{3,4,0},{5,4,0}},
 	{"extender",{6,4,-1},{1,5,1},{2,5,1},{3,5,1},{2,6,1},{3,6,1}},
-	},
+},
+{ -- level pack 3: "rocket levels"
+	{"refuel",{6,6,-1},{1,2,0},{6,1,0},{2,2,2}},
+	{"overshot",{5,5,-1},{1,1,0},{2,2,2},{3,3,2}},
+	{"overshot 2",{5,5,-1},{1,1,0},{2,2,2},{6,4,1},{6,5,1}},
+	{"round trip",{1,4,-1},{2,4,2},{1,3,0},{1,5,0},{6,4,0},},
+	{"smile",{1,1,-1},{6,1,-1},{1,2,0},{2,1,0},{2,2,2},{6,2,0},{5,1,0},{5,6,0},{6,5,0},{1,5,0},{2,6,0},{5,2,2}},
+	{"asteroid",{1,1,-1},{6,1,0},{5,2,2},{3,3,1},{2,5,0},{5,5,2},{6,6,0}},
+	{"asteroid 2",{1,1,-1},{6,2,0},{6,1,0},{5,3,2},{3,3,1},{1,6,0},{5,5,2},{6,6,0}},
+	{"rocket boost",{6,5,-1},{1,4,1},{4,2,1},{2,4,2},{2,5,2}},
+	{"landlocked",{1,6,-1},{2,2,0},{3,2,1},{3,4,1},{3,5,1},{3,6,2}},
+	{"out of bounds",{5,3,-1},{4,2,2},{4,1,1},{5,7,0},{1,3,1},{2,2,0},{5,2,1},{2,5,1}},
+	{"lateral liftoff",{2,1,-1},{6,3,1},{5,4,2},{5,5,1},{3,6,1}},
+	{"crevasse",{6,1,-1},{3,6,0},{2,5,2},{4,4,1},{4,5,1},{5,5,1}},
+	{"rocket boost 2",{6,1,-1},{2,5,2},{4,4,2},{4,5,1},{5,5,1}},
+	{"round trip 2",{4,4,-1},{5,4,1},{4,5,1},{5,5,2},{1,6,0},{6,6,0}},
+	{"slingshot",{6,6,-1},{2,2,0},{2,3,1},{3,3,1},{2,4,2},{2,5,1}}
+},
+{ -- level pack 4: "knight levels"
+	{"knight levels"}
+},
+{ -- last level pack: "your levels"
+ {"your levels here!"}
+},
 }
 
 function love.load()
@@ -72,6 +95,7 @@ function love.load()
     lpackIcons[#lpackIcons + 1] = newAnimation(lg.newImage("/data/imgs/baselvls-sheet.png"),240,240,4)
     lpackIcons[#lpackIcons + 1] = newAnimation(lg.newImage("/data/imgs/rocketlvls.png"),240,240,1.8)
     lpackIcons[#lpackIcons + 1] = newAnimation(lg.newImage("/data/imgs/knightlvls.png"),240,240,1.2, true)
+    lpackIcons[#lpackIcons + 1] = newAnimation(lg.newImage("/data/imgs/yourlvls.png"),240,240,1.2, true)
     cur={}
 	for i=1,#lpackIcons do
 		cur[i] = 1
@@ -96,6 +120,7 @@ function love.load()
     blockIcons[3] = lg.newImage("/data/imgs/knightBlock.png")
     blockIcons["yes"] = lg.newImage("/data/imgs/selectedBlock.png")
     blockIcons["no"] = lg.newImage("/data/imgs/selectedBlockNoMoves.png")
+    lockIcon = lg.newImage("/data/imgs/lock.png")
     x,y = 0,0
     lock = 0
     dopamine = 0
@@ -103,27 +128,57 @@ function love.load()
     cursor = newAnimation(lg.newImage("/data/imgs/cursor.png"),64,64,3.5)
 	mouseloc={0,0}
 	swipe={}
+	inputLock = false
+
+	--persistent data init
+	--love.filesystem.remove("playerProgress")
+	if love.filesystem.getInfo("playerProgress") == nil then
+		love.filesystem.newFile("playerProgress")
+		writeTable(l,"playerProgress")
+	else
+		l = readTable("playerProgress")
+	end
+	if love.filesystem.getInfo("playerLevels") == nil then
+		love.filesystem.newFile("playerLevels")
+	else
+		lvls[#lvls] = readTable("playerLevels")
+	end
+
+	l[#lvls] = #lvls[#lvls]
+
+	--[[love.filesystem.remove("playerProgress")
+	love.filesystem.newFile("playerProgress")
+	local abc={1,2,3,4,5,67}
+	serialize(abc,"playerProgress")
+	defg = readLevelData("playerProgress")--]]
+
+
+	--freeplay init
+	freeSelectIndex=1
+	freeSelectBlocksLeft = 10
+	freeSelectOptions = {}
+	for i=1,4 do
+		freeSelectOptions[i] = 0
+	end
+	freeSelectOptions[5] = 3
+	freeSelectBlinker = 0
+
+
+	osString = love.system.getOS()
+	if osString == "Windows" then
+		--load the compiled c file
+	end
+
 end
 
 --main draw and update functions
 function love.update(dt)
-    if mode=="title" then
-		update_title(dt)
-	elseif mode=="select" then
-		update_select(dt)
-    elseif mode=="lpack" then
-        update_lpack(dt)
-	elseif mode=="tutorial" then
-		update_tutorial(dt)
-	elseif mode=="editor" then
-		update_editor(dt)
-	elseif mode=="level" then
-		update_level(dt)
-	elseif mode=="hint" then
-		--if(btnp(❎)) 
-        mode="level"
-	end
+	--interesting note: the reason the deltaTime variable is needed is because load() evaulates the string from a global scope, rather than the scope from where it is called, 
+	--so it treats dt as a global variable (which is nil), so we need the deltaTime as a stand-in global variable 
+	deltaTime = dt
+	load("update_"..mode.."(deltaTime)")()
 end
+
 function love.draw()
     --maintain centered screen
     lg.translate(xtranslate,ytranslate)
@@ -132,22 +187,13 @@ function love.draw()
     lg.rectangle("fill",0,0,512,512)
     lg.setColor(1, 1, 1)
     --call draw for mode
-    if mode=="title" then
-		draw_title()
-    elseif mode=="tutorial" then
- 	    draw_tutorial()
-    elseif mode=="editor" then
- 	    draw_editor()
-	elseif mode=="select" then
-        draw_select()
-	elseif mode=="lpack" then
-		draw_lpack()
-	elseif mode=="level" then
-		draw_level()
-	end
+	load("draw_"..mode.."()")()
+
 	lg.setColor(black)
-	lg.rectangle("fill",-128,0,128,lg.getHeight())
+	lg.rectangle("fill",-256,0,256,lg.getHeight())
 	lg.rectangle("fill",512,0,256,lg.getHeight())
+	lg.rectangle("fill",0,-256,lg.getWidth(),256)
+	lg.rectangle("fill",0,512,lg.getWidth(),256)
     lg.setColor(yellow)
 	mx,my=love.mouse.getPosition()
 	mx = (mx-xtranslate)/scale
@@ -192,19 +238,25 @@ function draw_lpack()
     local middlepack = math.ceil(lpOffset/320+0.5)
     for i=math.max(1,middlepack-1),math.min(#lpackIcons, middlepack+1) do 
         drawLpackIcon(i, 320*(i-1)-lpOffset+136)
-    end
+    end 
 end
 
 function update_lpack(dt)
-    --only animate the selected lpack, even if its off screen
-    updateAnimation(lpackIcons[lpack],dt)
+    --there are multiple options for this. one is to update all currently drawn lpacks. another is to only update the lpack selected.
+	
+	local middlepack = math.ceil(lpOffset/320+0.5)
+    for i=math.max(1,middlepack-1),math.min(#lpackIcons, middlepack+1) do 
+    	updateAnimation(lpackIcons[i],dt)
+    end
+
+    --updateAnimation(lpackIcons[lpack],dt)
+
+
     if lpTargOffset ~= lpOffset then
         if lpOffset < lpTargOffset then
             lpOffset = lpOffset + 400*dt
-            --lpOffset = lpOffset + 1.2
         elseif lpOffset > lpTargOffset then 
             lpOffset = lpOffset - 400*dt
-           -- lpOffset = lpOffset - 1.2
         end
 
         if math.abs(lpOffset-lpTargOffset) < 1 then
@@ -223,7 +275,8 @@ function draw_select()
 	    lg.printf(i..". "..lvls[lpack][i][1],64,4*(69+12*i+ls_shift),560,"left",0,1,1)
 	end
 	for i=l[lpack]+2,#lvls[lpack] do
-	    --spr(16,100,68+12*i+ls_shift)
+	    lg.setColor(white)
+		lg.draw(lockIcon,360,4*(69+12*i+ls_shift))
 	end
 	--draw selected level tab
     lg.setColor(pink)
@@ -252,7 +305,7 @@ end
 
 
 function update_select()
-
+	
 end
 
 -- level 
@@ -266,8 +319,10 @@ function draw_level()
 	--print("clr",2,54,8)
 
     lg.setColor(white)
-	lg.printf(cur[lpack]..". "..b[1], 64, 16, 768, "center", 0, 0.5, 0.5)
-	
+	if lpack > 1 then
+		lg.printf(cur[lpack]..". "..b[1], 64, 16, 768, "center", 0, 0.5, 0.5)
+	end
+
 	txt=""
 	if (lpack==2) then txt="press c to " end
 	if(x==0) then
@@ -353,7 +408,8 @@ function draw_level()
             lg.setColor(1,1,1)
             lg.draw(blockIcons["yes"], b[z][1]*64, b[z][2]*64)
 		end
-        if(lpack==-1 or lpack==1) then dopamine=0 end 
+        if(lpack==1) then dopamine=0 end 
+        if(lpack==-1) then dopamine=1 end 
         if(dopamine>=20/30) then 
             lg.setColor(yellow)
             lg.rectangle("fill",132,196,248,136)
@@ -364,7 +420,10 @@ function draw_level()
         end
         if dopamine>=27/30 then
 			local txts={"next level","level select", "retry"}
-            if(cur[lpack]>=#lvls[lpack]) then txts[1]="continue" end
+			if mode == "free_play" then
+				txts = {"generate new", "return", "save level"}
+			elseif (cur[lpack]>=#lvls[lpack]) then txts[1]="continue" end
+
             for i=1,3 do
                 lg.setColor(white)
                 if i == mselect then lg.setColor(yellow) end
@@ -384,6 +443,105 @@ function update_level(dt)
 	end
 
 end
+
+
+--dele
+
+function draw_dele()
+	lg.setFont(picosmallfont)
+	lg.printf("press keys to delete save file (permanent!)",128,64,256, "center", 0,1,1)
+
+
+	local keys = 0
+	if love.keyboard.isDown("up") then
+		lg.printf("up",128,256,256,"center")
+		keys = keys + 1
+	end
+	if love.keyboard.isDown("left") then
+		lg.printf("left",32,288,256,"center")
+		keys = keys + 1
+	end
+	if love.keyboard.isDown("right") then
+		lg.printf("right",224,288,256,"center")
+		keys = keys + 1
+	end
+	if keys == 3 and love.keyboard.isDown("c") then
+		lg.printf("save deleted!",128,320,256,"center")
+		for i=1,#lvls-1 do
+			l[i]=0
+			cur[i]=1
+		end
+		lvls[#lvls] = { {"your levels here!"}}
+
+	end
+
+	lg.setFont(picofont)
+end
+
+function update_dele(dt)
+
+end
+
+
+
+--free select
+function draw_free_select()
+
+	lg.setColor(yellow)
+	lg.printf(freeSelectOptions[5],0,4*(32+12*5),512,"center",0,1,1)
+    lg.rectangle("fill", 0, 408, 512, 36+8)
+    lg.setColor(pink)
+    lg.rectangle("fill", 0, 412, 512, 36)
+	lg.setColor(lightGrey)
+    lg.setFont(picosmallfont)
+	for i=1,4 do
+		if i ~= freeSelectIndex then 
+			lg.printf("<              >",0,4*(32+12*i),512,"center",0,1,1)
+		end
+		lg.draw(blockIcons[i-1], 64, 4*(32+12*i)-2, 0, 0.5, 0.5)
+		for j=1,freeSelectOptions[i] do
+			lg.draw(blockIcons[i-1], 120+40*j,4*(32+12*i)-2,0,0.5,0.5)
+		end
+
+	end
+	if freeSelectIndex ~= 5 then
+		lg.printf("<              >",0,4*(32+12*5),512,"center",0,1,1)
+		lg.printf(freeSelectOptions[5],0,4*(32+12*5),512,"center",0,1,1)
+	end
+	lg.printf("moves",-176,4*(32+12*5),512,"center",0,1,1)
+
+	if freeSelectIndex == 5 then
+
+	end
+
+    lg.setColor(pink)
+	lg.printf("freeplay", 0, 32, 512, "center")
+	lg.printf("blocks left: "..freeSelectBlocksLeft, 0, 466, 512, "center")
+
+	lg.setColor(yellow)
+	if freeSelectBlocksLeft > 6 then
+		lg.printf("pick block types", 0, 416, 512, "center")
+	else 
+		lg.printf("press c to generate", 0, 416, 512, "center")
+	end
+
+	if freeSelectBlinker > 1 then
+		lg.printf("<              >",0,4*(32+12*freeSelectIndex),512,"center",0,1,1)
+	else 
+		lg.printf("<               >",0,4*(32+12*freeSelectIndex),512,"center",0,1,1)
+	end
+
+
+end
+
+function update_free_select(dt)
+	freeSelectBlinker = freeSelectBlinker + dt
+	if freeSelectBlinker > 2 then
+		freeSelectBlinker = freeSelectBlinker % 2
+	end
+
+end
+
 
 function swipe_controls()
 	mouseloc={math.floor((mx)/64),math.floor((my)/64)}
@@ -465,11 +623,14 @@ function level_unlocked(key)
 	if (key == "up" and y ~= 1) then y = y - 1 end
 	if (key == "down" and ((y<6 and x>0) or y<3)) then y = y + 1 end
 	
-	
 	if key == "c" then
 		fval=""
 		if (x==0) then
 			if y==1 then
+				if mode=="free_play" then 
+					mode = "free_select"
+					return
+				end
 				if (lpack==-1) then mode="editor" return end 
 				mode="select"
 				setup_ls()
@@ -557,11 +718,7 @@ function level_locked(key)
 			mselect=1
 			if lpack ~= -1 and l[lpack]<cur[lpack] then
 				l[lpack] = l[lpack] + 1
-                --TODO: PERMANENT MEMORY STUFF
-				--dset(lpack+1,l[lpack])
-				--dset(1,1)
 			end	
-			--dset(2,lpack)
 			return
 		end
 	end
@@ -578,21 +735,50 @@ function level_won(key)
 		currwon=false
 		dopamine=0
 	 
-	 if (lpack==-1) then mode="editor" return end 
-	
-		if mselect==1 then
-			if (cur[lpack]==#lvls[lpack]) then
-				mode="lpack"
-			else
+	--if (lpack==-1) then mode="editor" return end 
+		if mode == "level" then
+			if mselect==1 then
+				if (cur[lpack]==#lvls[lpack]) then
+					mode="lpack"
+					lpOffset=320*(lpack-1)
+				else
+					if (cur[lpack]<#lvls[lpack]) then cur[lpack] = cur[lpack] + 1 end
+					set_b()
+				end
+			elseif mselect==2 then
 				if (cur[lpack]<#lvls[lpack]) then cur[lpack] = cur[lpack] + 1 end
+				mode="select"
+				setup_ls()
+			elseif mselect==3 then
 				set_b()
 			end
-		elseif mselect==2 then
-			if (cur[lpack]<#lvls[lpack]) then cur[lpack] = cur[lpack] + 1 end
-			mode="select"
-			setup_ls()
-		elseif mselect==3 then
-			set_b()
+		elseif mode == "free_play" then 
+			if mselect==1 then
+				mode = "free_generate"
+				lg.setFont(picosmallfont)
+			elseif mselect==2 then
+				mode = "free_select"
+			elseif mselect==3 then
+				
+				while #un>0 do
+					b[un[#un][3]][1]=un[#un][1]
+					b[un[#un][3]][2]=un[#un][2]
+					deli(un,#un)
+				end
+
+				local templvl = tabletostr(b)
+				templvl = load("return "..templvl)()
+				if lvls[#lvls][1][1] == "your levels here!" then
+					lvls[#lvls][1] = templvl
+					lg.setFont(picosmallfont)
+				else
+					lvls[#lvls][#lvls[#lvls]+1] = templvl
+				end
+				lpack = #lvls
+				mode = "select"
+				l[#lvls] = #lvls[#lvls]
+				lpTargOffset = 320*(lpack-1)
+			end
 		end
 	end
 end
@@ -631,7 +817,11 @@ end
 function love.keypressed(key, scancode, isrepeat)
     -- there is no way to change the frequency of repeat keys in love2d, it falls to the system settings. So i put this so it only repeats every nth repeated input,
     -- so it repeats slower like how we have it in pico8. This will be a little funky since different systems have different native repeat delays.
-    if isrepeat == false then
+    if inputLock then
+		return
+	end
+	
+	if isrepeat == false then
         keyrepeats[key] = 0
     else
         keyrepeats[key] = keyrepeats[key] + 1
@@ -650,6 +840,23 @@ function love.keypressed(key, scancode, isrepeat)
         elseif key == "c" then
             if titleBtn[titleBtnIndx] == "play" then 
                 mode = "lpack"
+				if lpack == -1 then
+					lpack = 2
+				end
+			elseif titleBtn[titleBtnIndx] == "make" then
+				mode = "editor"
+			elseif titleBtn[titleBtnIndx] == "free" then
+				mode = "free_select"
+				freeSelectIndex = 1
+				freeSelectBlocksLeft = 10
+				for i=1,4 do
+					freeSelectOptions[i] = 0
+				end
+				freeSelectOptions[5] = 3
+			elseif titleBtn[titleBtnIndx] == "dele" then
+				mode = "dele"
+			elseif titleBtn[titleBtnIndx] == "info" then
+
             end
 
         end
@@ -673,7 +880,7 @@ function love.keypressed(key, scancode, isrepeat)
             y=b[2][2]
         elseif key == "x" then
             mode="lpack" 
-            lpshift=-80*(lpack-1) 
+            lpOffset=320*(lpack-1) 
         elseif key == "up" and cur[lpack]>1 then
             cur[lpack] = cur[lpack] - 1
             ls_boxselect = ls_boxselect - 1
@@ -681,7 +888,7 @@ function love.keypressed(key, scancode, isrepeat)
                 ls_shift = ls_shift + 12
                 ls_boxselect = ls_boxselect + 1
             end
-        elseif key == "down" and cur[lpack] <= #lvls[lpack]-1 then --and cur[lpack] <= math.min(l[lpack],#lvls[lpack]-1) then --- this bit to control locked levels
+        elseif key == "down" and cur[lpack] <= #lvls[lpack]-1 and cur[lpack] <= math.min(l[lpack],#lvls[lpack]-1) then --- this bit to control locked levels
             cur[lpack] = cur[lpack] + 1
             ls_boxselect = ls_boxselect + 1
             if ls_boxselect > 3 and #lvls[lpack]-cur[lpack] > 1 then
@@ -693,7 +900,6 @@ function love.keypressed(key, scancode, isrepeat)
             end
         end
 
-
     elseif mode=="lpack" then       -- LPACK SELECT INPUT
         if key == "left" then
             lpack = lpack - 1
@@ -702,6 +908,8 @@ function love.keypressed(key, scancode, isrepeat)
         elseif key == "c" then
             mode = "select"
 			setup_ls()
+		elseif key == "x" then
+			mode = "title"
         end
 
         if lpack < 1 then 
@@ -711,12 +919,53 @@ function love.keypressed(key, scancode, isrepeat)
         end
         lpTargOffset = 320*(lpack - 1)
 
-    elseif mode=="level" then       -- LEVEL INPUT
+    elseif mode=="level" or mode=="free_play" then       -- LEVEL INPUT
         if (currwon) then level_won(key) return end
         if (lock==0) then level_unlocked(key) return end
         if (lock==1) then level_locked(key) return end
-    end
 
+	elseif mode=="dele" then 		-- DELETE SAVE INPUT
+		if key == "x" then
+			mode = "title"
+		end
+
+	elseif mode=="free_select" then -- FREE SELECT INPUT
+		if key == "x" then
+			mode="title"	
+			lg.setFont(picofont)
+		elseif key == "c" then
+			mode = "free_generate"
+			levelGenCount = 0
+		elseif key == "up" and freeSelectIndex > 1 then
+			freeSelectIndex = freeSelectIndex - 1
+			freeSelectBlinker = 0
+		elseif key == "down" and freeSelectIndex < 5 then
+			freeSelectIndex = freeSelectIndex + 1
+			freeSelectBlinker = 0
+		elseif key == "right" then
+			if freeSelectIndex == 5 then
+				if freeSelectOptions[5] < 10 then
+					freeSelectOptions[5] = freeSelectOptions[5] + 1
+				end
+			else
+				if freeSelectOptions[freeSelectIndex] < 5 and freeSelectBlocksLeft > 0 then
+					freeSelectOptions[freeSelectIndex] = freeSelectOptions[freeSelectIndex] + 1
+					freeSelectBlocksLeft = freeSelectBlocksLeft - 1
+				end
+			end
+		elseif key == "left" then
+			if freeSelectIndex == 5 then
+				if freeSelectOptions[5] > 3 then
+					freeSelectOptions[5] = freeSelectOptions[5] - 1
+				end
+			else
+				if freeSelectOptions[freeSelectIndex] > 0 then
+					freeSelectOptions[freeSelectIndex] = freeSelectOptions[freeSelectIndex] - 1
+					freeSelectBlocksLeft = freeSelectBlocksLeft + 1
+				end
+			end
+		end
+    end
 end
 
 function love.resize(w,h)
@@ -860,6 +1109,7 @@ end
 
 
 function blocks(bl)
+	a={}
 	if(bl[3]==1) then block_reg(bl[1],bl[2]) end
 	if(bl[3]==2) then block_rocket(bl[1],bl[2]) end
 	if(bl[3]==3) then block_knight(bl[1],bl[2]) end
@@ -871,14 +1121,14 @@ function dir8(bx,by)
 	a={}
 	for dx=-1,1 do 
 		for dy=-1,1 do
-				if inbounds(bx+dx,by+dy) and (dx ~= 0 or dy ~= 0) then
-					if (contains(bx-dx,by-dy) or 
-					((dy == 0) and (contains(bx-dx,by+1) and contains(bx-dx,by-1))) or
-	    ((dx == 0) and (contains(bx+1,by-dy) and contains(bx-1,by-dy))) or
-	    ((dx ~= 0 and dy ~= 0) and (contains(bx,by-dy) and contains(bx-dx,by))) ) then
-	     add(a,{bx+dx,by+dy})
-	    end
-	   end
+			if inbounds(bx+dx,by+dy) and (dx ~= 0 or dy ~= 0) then
+				if (contains(bx-dx,by-dy) or 
+				((dy == 0) and (contains(bx-dx,by+1) and contains(bx-dx,by-1))) or
+				((dx == 0) and (contains(bx+1,by-dy) and contains(bx-1,by-dy))) or
+				((dx ~= 0 and dy ~= 0) and (contains(bx,by-dy) and contains(bx-dx,by))) ) then
+					add(a,{bx+dx,by+dy})
+				end
+			end
 		end
 	end	
 end
@@ -999,7 +1249,6 @@ function deli(t, i)
     table.remove(t, i)
 end
 
-
 function won()
 	local gnum=0
 	for i=g+2, #b do
@@ -1012,4 +1261,117 @@ function won()
 	end
 	
 	return false
+end
+
+function writeTable(table, filename)
+	local str = tabletostr(table)
+	love.filesystem.write(filename,str)
+end
+
+function tabletostr(table)
+	local str = "{"
+	for _,i in pairs(table) do
+		if type(i) == "table" then
+			str = str..tabletostr(i)..","
+		elseif type(i) == "string" then
+			str = str.."\""..i.."\""..","
+		else
+			str = str..i..","
+		end
+	end
+	str = str.."}"
+	return str
+end
+
+function readTable(filename)
+	local str = love.filesystem.read(filename)
+	local func = load('return '..str)
+	return func()
+end
+
+function love.quit()
+	writeTable(l,"playerProgress")
+	writeTable(lvls[#lvls], "playerLevels")
+end
+
+
+
+
+function future(round)
+	if round==-1 then 
+		return "not close" 
+	end
+	if won() then 
+		return "close!"
+	end
+	for i=g+1,#b do
+		local bt={b[i][1],b[i][2],b[i][3]}
+		blocks(bt)
+		local ta=makea()
+		for j=1,#ta do
+			b[i][1],b[i][2]=ta[j][1],ta[j][2]
+			local zzz=future(round-1)
+			b[i][1],b[i][2]=bt[1],bt[2]
+			if zzz=="close!" then 
+				return zzz
+			end
+		end
+	end
+	return "not close"
+end
+
+
+function update_free_generate(dt)
+
+	templvl = {"endless"}
+	local spaces = {}
+
+	-- generate goal
+	local a,b = math.floor(math.random(6)),math.floor(math.random(6))
+	templvl[#templvl+1] = {a,b,-1}
+	spaces[6*(a-1)+b] = 1
+
+	-- generate blocks
+	for i = 1,4 do 
+		for j=1,freeSelectOptions[i] do
+			while spaces[6*(a-1)+b] do 
+				a,b = math.floor(math.random(6)),math.floor(math.random(6))
+			end
+			templvl[#templvl+1] = {a,b,i-1}
+			spaces[6*(a-1)+b] = 1
+		end
+	end
+	set_b(templvl)
+
+
+	--if  future(freeSelectOptions[5]-1)=="not close" then
+	--if  future()=="not close" then
+	if  future(freeSelectOptions[5]-1)=="not close" and future(freeSelectOptions[5]+3) == "close!" then
+		mode = "free_play"
+		lpack = -1
+		lg.setFont(picofont)
+	end
+	levelGenCount = levelGenCount + 1
+end
+
+function draw_free_generate()
+	lg.printf("generating tha ting",0,256,512,"center")
+	lg.printf(levelGenCount,0,256+64,512,"center")
+	lg.printf(tabletostr(templvl),0,256+128+64,256,"center",0,0.5,0.5)
+end
+
+function update_free_play(dt)
+	update_level(dt)
+end
+
+function draw_free_play(dt)
+	draw_level()
+end
+
+function makea()
+	local ta={}
+	for i=1,#a do
+		ta[i]={a[i][1],a[i][2]}
+	end
+	return ta
 end
