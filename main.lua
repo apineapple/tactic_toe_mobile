@@ -228,7 +228,6 @@ function love.load()
     lockIcon = lg.newImage("/data/imgs/misc/lock.png")
     x,y = 0,0
 	a={}
-	mselect = 1
     lock = 0
     dopamine = 0
     currwon=false
@@ -476,8 +475,8 @@ function update_title(dt)
 	if titlePressed and titleMenuTimer < 1 then
 		if titleMenuTimer < 0.125 then
 			titleMenuTimer = titleMenuTimer + dt
-		else 
-			titleMenuTimer = titleMenuTimer + dt * 0.5
+		else
+			titleMenuTimer = titleMenuTimer + dt * 0.6
 		end
 	end
 end
@@ -689,23 +688,6 @@ function draw_level()
 		lg.printf(cur[lpack]..". "..b[1], 64, 16, 768, "center", 0, 0.5, 0.5)
 	end
 
-	txt=""
-	if (lpack==2) then txt="press c to " end
-	if(x==0) then
-		if (y==1) then
-			txt=txt.."go to level select"
-		elseif(y==2) then
-			txt=txt.."see if close"
-		elseif(y==3) then
-			txt=txt.."restart level"
-		end	
-	elseif(lpack==2) then
-		txt=txt.."select, x to undo"
-	else
-		txt=""
-	end
-	lg.printf(txt,64,472,768,"center",0, 0.5, 0.5)
-
 	if lock then
 		mxCoord, myCoord = screenToCoord(mx,my)
 	end
@@ -869,11 +851,6 @@ function update_level(dt)
 	end
 	for k,v in pairs(blockAnims) do
 		update_block_animation(v,k,dt)
-	end
-
-	
-	if lock==0 and not currwon then
-		--swipe_controls()
 	end
 end
 
@@ -1073,10 +1050,12 @@ function update_transition(dt) -- i like this system a lot for a few reasons. on
 		elseif transitions[2] == "lpack" then
 			lpOffset=320*(lpack-1)
 			lpTargOffset = lpOffset
+			mouseVelocityX = 0
 		elseif transitions[2] == "select" then
 		    lg.setFont(picosmallfont)
 			setup_ls()
 			currwon = false
+			mouseVelocityY = 0
 		elseif transitions[2] == "level" then
 			undoQueue = 0
 			blockAnims = {}
@@ -1104,78 +1083,6 @@ function update_transition(dt) -- i like this system a lot for a few reasons. on
 
 	if transitionCounter > 1 then
 		mode = transitions[2]
-	end
-end
-
-function swipe_controls()
-	mouseloc={math.floor((mx)/64),math.floor((my)/64)}
-	--add so its only heart touches that count
-	if love.mouse.isDown(1) then
-		if (#swipe==0 or swipe[#swipe][1]~=mouseloc[1] or swipe[#swipe][2]~=mouseloc[2]) and mx-mouseloc[1]*64 > 10 and mx-mouseloc[1]*64 < 54 and  my-mouseloc[2]*64 > 10 and my-mouseloc[2]*64 < 54 then
-			add(swipe,{mouseloc[1],mouseloc[2]})
-		end
-	else
-		local swipeprev = nil
-		local moreswipe = true
-		local moved=nil
-		local swipeid = nil
-		local cbskip = 0
-		while moreswipe do
-			moreswipe = nil
-			moved = #un
-			for i=1,#swipe do
-				if cbskip > 0 then
-					cbskip = cbskip - 1 
-				else
-					swipeid = contains(swipe[i][1],swipe[i][2])
-					if swipeid then
-						if i<#swipe-3 and contains(swipe[i+1][1],swipe[i+1][2]) and contains(swipe[i+2][1],swipe[i+2][2]) and contains(swipe[i+3][1],swipe[i+3][2]) and swipe[i+2][1]==swipe[i][1] and swipe[i+2][2]==swipe[i][2] then
-							cbskip = 2
-							--need to worry about more than one apart error, user exploit
-							--also deal with corner boost with more than one space
-							local cbx = (swipe[i][1]+swipe[i+1][1])/2 - swipe[i+3][1]
-							local cby = (swipe[i][2]+swipe[i+1][2])/2 - swipe[i+3][2]
-							
-							if cbx > 0 then
-								cbx = swipe[i+3][1] + 1
-							elseif cbx < 0 then
-								cbx = swipe[i+3][1] - 1
-							else
-								cbx = swipe[i+3][1]
-							end
-							
-							if cby > 0 then
-								cby = swipe[i+3][2] + 1
-							elseif cby < 0 then
-								cby = swipe[i+3][2] - 1
-							else
-								cby = swipe[i+3][2]
-							end
-
-							swipeprev={cbx,cby}
-
-						elseif swipeprev then
-							x = swipe[i][1]
-							y = swipe[i][2]
-							level_unlocked("c")
-							x = swipe[i][1]+(swipe[i][1]-swipeprev[1])
-							y = swipe[i][2]+(swipe[i][2]-swipeprev[2])
-							level_locked("c")
-							if #un > moved then
-								swipeprev=nil
-								moreswipe = true
-								break
-							end
-						end
-
-						if cbskip == 0 then
-							swipeprev={swipe[i][1],swipe[i][2]}
-						end
-					end
-				end
-			end
-		end
-		swipe={}
 	end
 end
 
@@ -1209,180 +1116,6 @@ end
 
 
 -- HELPERS AND ADDITIONAL
-
---input
-function love.keypressed(key, scancode, isrepeat)
-    -- there is no way to change the frequency of repeat keys in love2d, it falls to the system settings. So i put this so it only repeats every nth repeated input,
-    -- so it repeats slower like how we have it in pico8. This will be a little funky since different systems have different native repeat delays.
-    if inputLock then
-		return
-	end
-	
-	if isrepeat == false then
-        keyrepeats[key] = 0
-    else
-        keyrepeats[key] = keyrepeats[key] + 1
-    end
-
-    if keyrepeats[key] % 8 ~= 0 then
-        return
-    end
-
-
-    if mode == "title" then         --TITLE MODE INPUT
-        if key == "left" then
-            titleBtnIndx = titleBtnIndx - 1
-        elseif key == "right" then
-            titleBtnIndx = titleBtnIndx + 1
-        elseif key == "c" then
-            if titleBtn[titleBtnIndx] == "play" then 
-                mode = "lpack"
-				if lpack == -1 then
-					lpack = 2
-				end
-			elseif titleBtn[titleBtnIndx] == "make" then
-				mode = "editor"
-			elseif titleBtn[titleBtnIndx] == "free" then
-				mode = "free_select"
-				freeSelectIndex = 1
-				freeSelectBlocksLeft = 8
-				for i=1,4 do
-					freeSelectOptions[i] = 0
-				end
-				freeSelectOptions[5] = 3
-			elseif titleBtn[titleBtnIndx] == "dele" then
-				lg.setFont(picosmallfont)
-				mode = "dele_select"
-			elseif titleBtn[titleBtnIndx] == "info" then
-				mode = "info"
-            end
-
-        end
-
-        if titleBtnIndx < 1 then 
-            titleBtnIndx = #titleBtn
-        elseif titleBtnIndx > #titleBtn then
-            titleBtnIndx = 1
-        end
-    elseif mode=="tutorial" then    -- TUTORIAL INPUT
-        
-
-    elseif mode=="editor" then      -- EDITOR INPUT
-
-
-    elseif mode=="select" then      -- LEVEL SELECT INPUT
-        if key == "c" then
-            mode="level"
-            set_b()
-			lock = 0
-            x=b[2][1]
-            y=b[2][2]
-        elseif key == "x" then
-            mode="lpack" 
-            lpOffset=320*(lpack-1) 
-        elseif key == "up" and cur[lpack]>1 then
-            cur[lpack] = cur[lpack] - 1
-            ls_boxselect = ls_boxselect - 1
-            if ls_boxselect < 3 and lsShift <= -24 and cur[lpack] > 1 then
-                lsShift = lsShift + 12
-                ls_boxselect = ls_boxselect + 1
-            end
-        elseif key == "down" and cur[lpack] <= #lvls[lpack]-1 and cur[lpack] <= math.min(l[lpack],#lvls[lpack]-1) then --- this bit to control locked levels
-            cur[lpack] = cur[lpack] + 1
-            ls_boxselect = ls_boxselect + 1
-            if ls_boxselect > 3 and #lvls[lpack]-cur[lpack] > 1 then
-                lsShift = lsShift - 12
-                ls_boxselect = ls_boxselect - 1
-            end
-            if ls_levelstart + 3 > cur[lpack] and ls_levelstart > 1 then
-                ls_levelstart = ls_levelstart - 1
-            end
-        end
-
-    elseif mode=="lpack" then       -- LPACK SELECT INPUT
-        if key == "left" then
-            lpack = lpack - 1
-        elseif key == "right" then
-            lpack = lpack + 1
-        elseif key == "c" then
-            mode = "select"
-			setup_ls()
-		elseif key == "x" then
-			mode = "title"
-        end
-
-        if lpack < 1 then 
-            lpack = 1
-        elseif lpack > #lpackIcons then
-            lpack = #lpackIcons
-        end
-        lpTargOffset = 320*(lpack - 1)
-
-    elseif mode=="level" or mode=="free_play" then       -- LEVEL INPUT
-		if currwon then level_won(key) end
-		if lock==0 then level_unlocked(key) else level_locked(key) end
-	elseif mode=="dele_select" then -- DELETE SAVE INPUT
-		if key == "x" then
-			mode = "title"
-			lg.setFont(picofont)
-		elseif (key == "left") and deleSelect then
-			deleSelect = false
-		elseif (key == "right") and not deleSelect then
-			deleSelect = true
-		elseif key == "c" then 
-			if deleSelect then
-				mode = "dele_levels"
-			else
-				mode = "dele_progress"
-			end
-		end
-	elseif mode == "dele_progress" or mode == "dele_levels" then
-		if key == "x" then 
-			mode = "dele_select"
-		end
-	elseif mode=="free_select" then -- FREE SELECT INPUT
-		if key == "x" then
-			mode="title"	
-			lg.setFont(picofont)
-		elseif key == "c" and 8 - freeSelectBlocksLeft - freeSelectOptions[1] > 2 then
-			mode = "free_generate"
-			levelGenCount = 0
-		elseif key == "up" and freeSelectIndex > 1 then
-			freeSelectIndex = freeSelectIndex - 1
-			freeSelectBlinker = 0
-		elseif key == "down" and freeSelectIndex < 5 then
-			freeSelectIndex = freeSelectIndex + 1
-			freeSelectBlinker = 0
-		elseif key == "right" then
-			if freeSelectIndex == 5 then
-				if freeSelectOptions[5] < 10 then
-					freeSelectOptions[5] = freeSelectOptions[5] + 1
-				end
-			else
-				if freeSelectOptions[freeSelectIndex] < 5 and freeSelectBlocksLeft > 0 then
-					freeSelectOptions[freeSelectIndex] = freeSelectOptions[freeSelectIndex] + 1
-					freeSelectBlocksLeft = freeSelectBlocksLeft - 1
-				end
-			end
-		elseif key == "left" then
-			if freeSelectIndex == 5 then
-				if freeSelectOptions[5] > 3 then
-					freeSelectOptions[5] = freeSelectOptions[5] - 1
-				end
-			else
-				if freeSelectOptions[freeSelectIndex] > 0 then
-					freeSelectOptions[freeSelectIndex] = freeSelectOptions[freeSelectIndex] - 1
-					freeSelectBlocksLeft = freeSelectBlocksLeft + 1
-				end
-			end
-		end
-	elseif mode == "free_generate" then 
-		if key == "x" then
-			mode = "free_select"
-		end
-    end
-end
-
 
 function love.mousepressed(x, y, button, istouch, presses )
 	if inputLock then return end
@@ -1455,10 +1188,10 @@ function love.mousepressed(x, y, button, istouch, presses )
 		if not titlePressed then
 			titlePressed = true
 			titleMenuTimer = -0.2
-		elseif titleMenuTimer < 0 then
+		--elseif titleMenuTimer < 0 then
 
 		elseif titleMenuTimer < 1 then
-			titleMenuTimer = 1
+			titleMenuTimer = 1.1
 		else
 			titleMenuBtnPressed = 0
 			if mouseDownX > 136 and mouseDownX < 376 then
@@ -1577,12 +1310,12 @@ function love.mousereleased( x, y, button, istouch, presses )
 	elseif mode == "title" then
 		if titleMenuTimer > 1 and mouseUpX > 136 and mouseUpX < 376 then
 			for i=1,5 do
-				if mouseUpY > 68*i+24 and mouseUpY < 68*i+80 then -- title menu button controls
-					if i == 1 then
+				if mouseUpY > 68*i+24 and mouseUpY < 68*i+80 and titleMenuBtnPressed == i then -- title menu button controls
+					if i == 1 then 
 						setup_transition("lpack")
 					elseif  i == 2 then
 					elseif  i == 3 then
-						setup_transition("free_select")
+						--setup_transition("free_select")
 					elseif  i == 4 then
 					elseif  i == 5 then
 					end
@@ -2316,7 +2049,6 @@ function update_block_animation(block,k,dt)
 					gnum=0
 					cf=-20
 					parts_init()
-					mselect=1
 					if lpack ~= -1 and l[lpack]<cur[lpack] then
 						l[lpack] = l[lpack] + 1
 					end	
